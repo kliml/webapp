@@ -24,27 +24,29 @@ public class WebContainer {
   private ExecutorService executorService;
 
   public WebContainer() {
-    this.port = port;
     this.port = Settings.getPort();
     this.nThreads = Settings.getNThreads();
-    //this.configFileName = configFileName;
   }
 
+  /**
+   * Method start ExecutorService handling socket connections.
+   * Port and nThreads for ExecutorService are defined in config file.
+   * @throws IOException if port is already occupied.
+   */
   private void start() throws IOException {
     ServerSocket serverSocket = new ServerSocket(port);
-
     ExecutorService executorService = Executors.newFixedThreadPool(nThreads); // Config
-
-
-
-    while (true) { // Consider ThreadPool
+    while (true) {
       Socket socket = serverSocket.accept();
-      //Thread socketHandler = new SocketHandler(socket, servletHandlers);
-      //socketHandler.start();
       executorService.execute(new SocketHandler(socket, servletHandlers));
     }
   }
 
+  /**
+   * Loads and matches URL to servlet classes.
+   * URL and classes are stored in servlet config file.
+   * @throws IOException if unable to open config file.
+   */
   private void loadServletPropertiesFile() throws IOException {
     InputStream input = getClass().getClassLoader().getResourceAsStream(configFileName);
     if (input == null) {
@@ -65,6 +67,11 @@ public class WebContainer {
     });
   }
 
+  /**
+   * Method tries to load instance of servlet.
+   * @param className servlet name.
+   * @return instance of required servlet.
+   */
   private HttpServlet getServletInstance(String className) {
     try {
       return (HttpServlet) Class.forName(className).getDeclaredConstructor().newInstance();

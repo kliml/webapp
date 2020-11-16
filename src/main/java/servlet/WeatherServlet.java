@@ -74,8 +74,6 @@ public class WeatherServlet extends HttpServlet {
       printWriter.println();
     }
 
-
-
     apiConnection.disconnect();
   }
 

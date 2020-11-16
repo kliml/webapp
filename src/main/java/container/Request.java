@@ -25,6 +25,11 @@ public class Request implements HttpServletRequest {
     this.input = reader;
   }
 
+  /**
+   * Parsing HTTP request.
+   * @return true if parsing was successful, otherwise false/
+   * @throws IOException if unable to read from socket input channel.
+   */
   public boolean parse() throws IOException {
     String line = input.readLine();
     if (line == null) {
@@ -71,7 +76,7 @@ public class Request implements HttpServletRequest {
       }
       this.body = bodyBuilder.toString();
       //TODO
-      //System.out.println(bodyBuilder.toString());
+//      System.out.println(bodyBuilder.toString());
 //      if (!headers.get("Content-Type").contains("text")) {
 //        System.err.println("Unsupported body format");
 //      }
@@ -80,6 +85,10 @@ public class Request implements HttpServletRequest {
     return true;
   }
 
+  /**
+   * Parsing key value pairs from query parameters.
+   * @param queryString
+   */
   private void parseRequestParameters(String queryString) {
     for (String pair : queryString.split("&")) {
       String[] requestPair = pair.split("=");

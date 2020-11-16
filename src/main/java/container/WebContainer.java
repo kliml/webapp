@@ -26,6 +26,7 @@ public class WebContainer {
   public WebContainer() {
     this.port = Settings.getPort();
     this.nThreads = Settings.getNThreads();
+    this.executorService = Executors.newFixedThreadPool(this.nThreads);
   }
 
   /**
@@ -35,7 +36,6 @@ public class WebContainer {
    */
   private void start() throws IOException {
     ServerSocket serverSocket = new ServerSocket(port);
-    ExecutorService executorService = Executors.newFixedThreadPool(nThreads);
     while (true) {
       Socket socket = serverSocket.accept();
       executorService.execute(new SocketHandler(socket, servletHandlers));

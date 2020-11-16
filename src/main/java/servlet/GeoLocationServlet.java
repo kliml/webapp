@@ -1,6 +1,6 @@
 package servlet;
 
-import util.ApiSettings;
+import util.Settings;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -19,7 +19,7 @@ public class GeoLocationServlet extends HttpServlet {
   public void init() throws ServletException {
     super.init();
     System.err.println(this.toString() + " init");
-    geoLocationApiKey = ApiSettings.getGeoLocationApiKey();
+    geoLocationApiKey = Settings.getGeoLocationApiKey();
   }
 
   @Override

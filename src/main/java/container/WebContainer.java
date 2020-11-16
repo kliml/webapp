@@ -1,5 +1,7 @@
 package container;
 
+import util.Settings;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import java.io.IOException;
@@ -11,24 +13,27 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class WebContainer {
 
-  private final int port;
-  private final String configFileName;
+  private int port;
+  private int nThreads;
+  private static final String configFileName = "servlet.properties";
   private Map<String, HttpServlet> servletHandlers = new HashMap<>();
   private ExecutorService executorService;
 
-  public WebContainer(int port, String configFileName) {
+  public WebContainer() {
     this.port = port;
-    this.configFileName = configFileName;
+    this.port = Settings.getPort();
+    this.nThreads = Settings.getNThreads();
+    //this.configFileName = configFileName;
   }
 
   private void start() throws IOException {
     ServerSocket serverSocket = new ServerSocket(port);
 
-    ExecutorService executorService = Executors.newFixedThreadPool(3); // Config
+    ExecutorService executorService = Executors.newFixedThreadPool(nThreads); // Config
 
 
 
@@ -81,13 +86,21 @@ public class WebContainer {
 
   public static void main(String[] args) {
     try {
-      WebContainer webContainer = new WebContainer(8080, "servlet.properties");
+      //WebContainer webContainer = new WebContainer(8080, "servlet.properties");
+      WebContainer webContainer = new WebContainer();
       webContainer.loadServletPropertiesFile();
 
       Runtime.getRuntime().addShutdownHook(new Thread() {
         @Override
         public void run() {
           webContainer.executorService.shutdown();
+          try {
+            if (!webContainer.executorService.awaitTermination(800, TimeUnit.MILLISECONDS)) {
+              webContainer.executorService.shutdownNow();
+            }
+          } catch (InterruptedException e) {
+            webContainer.executorService.shutdownNow();
+          }
           webContainer.servletHandlers.forEach((url, servlet) -> servlet.destroy());
         }
       });

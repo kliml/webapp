@@ -1,5 +1,7 @@
 package servlet;
 
+import util.Settings;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -11,19 +13,19 @@ import java.net.URL;
 public class WeatherServlet extends HttpServlet {
 
   private static final String weatherApiUrl = "http://api.openweathermap.org/data/2.5/weather?id=%s&appid=%s";
-  private static final String apiKey = "a73b2f28b810534cb746added5146ced";
+  private static String apiKey;
 
   @Override
   public void init() throws ServletException {
     super.init();
-    System.out.println(this.toString() + " init");
-    //TODO open connection
+    System.err.println(this.toString() + " init");
+    apiKey = Settings.getWeatherApiKey();
   }
 
   @Override
   public void destroy() {
     super.destroy();
-    System.out.println(this.toString() + " destroy");
+    System.err.println(this.toString() + " destroy");
   }
 
   @Override
@@ -54,8 +56,6 @@ public class WeatherServlet extends HttpServlet {
     printWriter.println("Content-Type: text/html");
     printWriter.println();
     //super.doGet(req, resp);
-
-
 
     apiConnection.disconnect();
   }

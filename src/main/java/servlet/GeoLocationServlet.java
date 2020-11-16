@@ -32,29 +32,52 @@ public class GeoLocationServlet extends HttpServlet {
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     String zipCode = req.getParameter("zip");
 
+    BufferedReader zipReader = req.getReader();
+    String zipCodee = zipReader.readLine();
+    System.err.println("zip code from post body = " + zipCodee);
+
+    if (zipCode == null) {
+      //TODO convert to body parsing
+      return;
+    }
+
     URL apiUrl = new URL(String.format(geoLocationApiUrl, geoLocationApiKey, zipCode));
     HttpURLConnection apiConnection = (HttpURLConnection) apiUrl.openConnection();
     apiConnection.setRequestMethod("GET");
 
     apiConnection.connect();
 
+    int responseCode = apiConnection.getResponseCode();
+    System.err.println(responseCode);
 
-    InputStream inputStream = apiConnection.getInputStream();
-    BufferedReader reader =  new BufferedReader(new InputStreamReader(inputStream));
-    StringBuilder sb = new StringBuilder();
-    String line;
-    while ((line = reader.readLine()) != null) {
-      sb.append(line);
+    if (responseCode == 200) {
+      InputStream inputStream = apiConnection.getInputStream();
+      BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+      StringBuilder sb = new StringBuilder();
+      String line;
+      while ((line = reader.readLine()) != null) {
+        sb.append(line);
+      }
+      reader.close();
+      String body = sb.toString();
+      System.err.println(body);
+      //System.err.println(apiConnection.getResponseCode());
+
+      System.err.println("servlet.GeoLocationServlet post");
+      PrintWriter printWriter = resp.getWriter();
+      printWriter.println("HTTP/1.1 200 OK");
+      printWriter.println("Content-Type: text/html");
+      printWriter.println();
+      printWriter.println(body);
+      printWriter.println();
+    } else {
+      PrintWriter printWriter = resp.getWriter();
+      printWriter.println("HTTP/1.1 500 Internal Server Error");
+      printWriter.println("Content-Type: text/html");
+      printWriter.println();
+      printWriter.println("<html><body>Can not process this request</body></html>");
+      printWriter.println();
     }
-    reader.close();
-    System.err.println(sb.toString());
-    //System.err.println(apiConnection.getResponseCode());
-
-    System.out.println("servlet.GeoLocationServlet post");
-    PrintWriter printWriter = resp.getWriter();
-    printWriter.println("HTTP/1.1 200 OK");
-    printWriter.println("Content-Type: text/html");
-    printWriter.println();
 
     apiConnection.disconnect();
   }

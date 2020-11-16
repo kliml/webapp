@@ -2,12 +2,11 @@ package container;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.security.Principal;
 import java.util.*;
 import java.util.regex.Pattern;
+
 
 public class Request implements HttpServletRequest {
 
@@ -15,6 +14,7 @@ public class Request implements HttpServletRequest {
   private String method;
   private String path;
   private String protocol;
+  private String body;
   private Map<String, String> headers = new HashMap<>();
   private Map<String, String> requestParameters = new HashMap<>();
 
@@ -50,7 +50,8 @@ public class Request implements HttpServletRequest {
 
     line = input.readLine();
 
-    while ((line = input.readLine()).isEmpty()) {
+    // Better headers
+    while (!(line = input.readLine()).isEmpty()) {
       String[] headerPair = headerPairSplitterPattern.split(line);
       headers.put(headerPair[0], headerPair[1]);
     }
@@ -64,11 +65,13 @@ public class Request implements HttpServletRequest {
 
     //TODO Post body
     if (method.equals("POST")) {
-      StringBuilder body = new StringBuilder();
+      StringBuilder bodyBuilder = new StringBuilder();
       while (input.ready()) {
-        body.append((char) input.read());
+        bodyBuilder.append((char) input.read());
       }
-      System.out.println(body.toString());
+      this.body = bodyBuilder.toString();
+      //TODO
+      //System.out.println(bodyBuilder.toString());
 //      if (!headers.get("Content-Type").contains("text")) {
 //        System.err.println("Unsupported body format");
 //      }
@@ -327,7 +330,8 @@ public class Request implements HttpServletRequest {
 
   @Override
   public BufferedReader getReader() throws IOException {
-    return null;
+    Reader inputString = new StringReader(body);
+    return new BufferedReader(inputString);
   }
 
   @Override

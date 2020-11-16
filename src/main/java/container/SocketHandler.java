@@ -60,12 +60,10 @@ public class SocketHandler implements Runnable {
 
       Response response = new Response(socket.getOutputStream());
       PrintWriter printWriter = response.getWriter();
-//      printWriter.println("HTTP/1.1 200 OK");
-//      printWriter.println("Content-Type: text/html");
-//      printWriter.println();
       servlet.service(request, response);
       printWriter.flush();
 
+      // Testing
       System.out.println("Method -> " + request.getMethod());
       System.out.println("Path -> " + request.getPathInfo());
       System.out.println("Accept -> " + request.getHeader("Accept"));

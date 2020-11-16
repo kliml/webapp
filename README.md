@@ -87,6 +87,6 @@ Servlets return full response from API calls because their purpose is only to de
 - Better error handling.
 - Logging.
 - Buffer for HTTP request body.
-- Store API more securely.
+- Store API keys more securely.
 - Tests.
 - Checking HTTP body content type.

@@ -19,7 +19,7 @@ public class WebContainer {
 
   private int port;
   private int nThreads;
-  private static final String configFileName = "servlet.properties";
+  private static final String servletConfigFileName = "servlet.properties";
   private Map<String, HttpServlet> servletHandlers = new HashMap<>();
   private ExecutorService executorService;
 
@@ -35,7 +35,7 @@ public class WebContainer {
    */
   private void start() throws IOException {
     ServerSocket serverSocket = new ServerSocket(port);
-    ExecutorService executorService = Executors.newFixedThreadPool(nThreads); // Config
+    ExecutorService executorService = Executors.newFixedThreadPool(nThreads);
     while (true) {
       Socket socket = serverSocket.accept();
       executorService.execute(new SocketHandler(socket, servletHandlers));
@@ -48,14 +48,13 @@ public class WebContainer {
    * @throws IOException if unable to open config file.
    */
   private void loadServletPropertiesFile() throws IOException {
-    InputStream input = getClass().getClassLoader().getResourceAsStream(configFileName);
+    InputStream input = getClass().getClassLoader().getResourceAsStream(servletConfigFileName);
     if (input == null) {
-      throw new RuntimeException("Unable to find file: " + configFileName);
+      throw new RuntimeException("Unable to find file: " + servletConfigFileName);
     }
 
     Properties properties = new Properties();
     properties.load(input);
-
     properties.forEach((key, value) -> {
       HttpServlet servlet = getServletInstance((String) value);
       try {

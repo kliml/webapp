@@ -21,11 +21,10 @@ public class Response implements HttpServletResponse {
 
   @Override
   public void sendError(int sc, String msg) throws IOException {
-    printWriter.println(String.format("HTTP/1.1 %d", sc));
-    printWriter.println("Content-Type: text/html");
-    printWriter.println();
-    printWriter.println(String.format("<html><body>%s</body></html>", msg));
-    printWriter.println();
+    printWriter.println(String.format("HTTP/1.1 %d\n" +
+        "Content-Type: text/html\n\n" +
+        "<html><body>%s</body></html>\n\n", sc, msg)
+    );
   }
 
   @Override

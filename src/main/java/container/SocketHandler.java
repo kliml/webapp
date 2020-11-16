@@ -60,11 +60,10 @@ public class SocketHandler implements Runnable {
   }
 
   private void sendError(PrintWriter output, int sc, String msg) throws IOException {
-    output.println(String.format("HTTP/1.1 %d", sc));
-    output.println("Content-Type: text/html");
-    output.println();
-    output.println(String.format("<html><body>%s</body></html>", msg));
-    output.println();
+    output.println(String.format("HTTP/1.1 %d\n" +
+        "Content-Type: text/html\n\n" +
+        "<html><body>%s</body></html>\n\n", sc, msg)
+    );
     output.flush();
   }
 }

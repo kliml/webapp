@@ -65,11 +65,10 @@ public class GeoLocationServlet extends HttpServlet {
   }
 
   private void sendResponse(PrintWriter output, int sc, String msg) {
-    output.println(String.format("HTTP/1.1 %d", sc));
-    output.println("Content-Type: application/json");
-    output.println();
-    output.println(msg);
-    output.println();
+    output.println(String.format("HTTP/1.1 %d\n" +
+        "Content-Type: application/json\n\n" +
+        "%s\n\n", sc, msg)
+    );
   }
 
   private Integer tryParseZipCode(String zip) {

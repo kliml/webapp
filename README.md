@@ -60,7 +60,7 @@ Servlets return full response from API calls because their purpose is only to de
 ```
 
 - Geo-location service: returns time zone by ZIP code given in the POST.
-<br>Example query: POST `http://localhost:8080/location?zip=99501`, POST body: `99501`
+<br>Example query: POST `http://localhost:8080/location`, POST body: `99501`
 <br>Output:
 ```
 {
@@ -88,4 +88,4 @@ Servlets return full response from API calls because their purpose is only to de
 - Buffer for HTTP request body.
 - Store API more securely.
 - Tests.
-- Checking POST body content type.
+- Checking HTTP body content type.

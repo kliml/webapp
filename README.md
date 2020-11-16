@@ -1,6 +1,7 @@
 # webapp
 Simple Java servlet container with full servlet lifecycle.
 Request and response classes for servlets are not fully implemented, because purpose of this project is to demonstrate configurable application which can be used to mock different webservices.
+Current implementation supports only GET and POST HTTP methods.
 ## Adding a servlet
 To add a servlet:
 - Place servlet in `servlet` package.

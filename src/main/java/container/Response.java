@@ -1,21 +1,13 @@
 package container;
 
-import javax.net.ssl.SSLSession;
 import javax.servlet.ServletOutputStream;
-import javax.servlet.WriteListener;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpHeaders;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.Collection;
 import java.util.Locale;
-import java.util.Optional;
 
 public class Response implements HttpServletResponse {
 

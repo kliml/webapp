@@ -19,7 +19,9 @@ public class Request implements HttpServletRequest {
   private Map<String, String> requestParameters = new HashMap<>();
 
   private static final Pattern headerSplitterPattern = Pattern.compile(" ");
-  private static final Pattern headerPairSplitterPattern = Pattern.compile(":");
+  private static final Pattern headerPairSplitterPattern = Pattern.compile(": ");
+  private static final Pattern queryPairSplitterPattern = Pattern.compile("&");
+  private static final Pattern queryValueSplitterPattern = Pattern.compile("=");
 
   public Request(BufferedReader reader) {
     this.input = reader;
@@ -82,8 +84,8 @@ public class Request implements HttpServletRequest {
    * @param queryString
    */
   private void parseRequestParameters(String queryString) {
-    for (String pair : queryString.split("&")) {
-      String[] requestPair = pair.split("=");
+    for (String pair : queryPairSplitterPattern.split(queryString)) {
+      String[] requestPair = queryValueSplitterPattern.split(pair);
       requestParameters.put(requestPair[0], requestPair[1]);
     }
   }

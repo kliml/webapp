@@ -11,8 +11,8 @@ To add a servlet:
 Included servlets only accept US codes due to limitations of free APIs that are used.
 Servlets return full response from API calls because their purpose is only to demonstrate servlet performance.
 - Weather service: returns weather information by city code passed as a parameter in the query string.
-Example query: GET `http://localhost:8080/weather?city=2172797`
-Output:
+\nExample query: GET `http://localhost:8080/weather?city=2172797`
+\nOutput:
 ```
 {
     "coord": {
@@ -60,8 +60,8 @@ Output:
 ```
 
 - Geo-location service: returns time zone by ZIP code given in the POST.
-Example query: POST `http://localhost:8080/location?zip=99501`, POST body: `99501`
-Output:
+\nExample query: POST `http://localhost:8080/location?zip=99501`, POST body: `99501`
+\nOutput:
 ```
 {
     "zip_code": "99501",

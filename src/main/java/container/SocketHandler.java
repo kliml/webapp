@@ -20,41 +20,27 @@ public class SocketHandler implements Runnable {
     this.servletHandlers = servletHandlers;
   }
 
+  /**
+   * Servicing socket by constructing request object,
+   * validating it and trying to assign to a servlet.
+   * @see Request
+   * @throws IOException if unable to read from or write to socket channel.
+   */
   @Override
   public void run() {
-
-
-    BufferedReader input = null;
-    //PrintWriter output = null;
     try {
-      input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+      BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
       PrintWriter output = new PrintWriter(socket.getOutputStream());
-//      String line = input.readLine();
-//
-//      while (!line.isEmpty()) {
-//        System.out.println(line);
-//        line = input.readLine();
-//      }
 
       Request request = new Request(input);
       if (!request.parse()) {
-        //PrintWriter output = new PrintWriter(socket.getOutputStream());
-        output.println("HTTP/1.1 500 Internal Server Error");
-        output.println("Content-Type: text/html");
-        output.println();
-        output.println("<html><body>Can not process this request</body></html>");
-        output.flush();
+        sendError(output, 500, "Can not process this request");
         return;
       }
 
       HttpServlet servlet = servletHandlers.get(request.getPathInfo());
       if (servlet == null) {
-        //PrintWriter output = new PrintWriter(socket.getOutputStream());
-        output.println("HTTP/1.1 404 Not Found");
-        output.println("Content-Type: text/html");
-        output.println();
-        output.println("<html><body>Servlet not found</body></html>");
-        output.flush();
+        sendError(output, 404, "Servlet not found");
         return;
       }
 
@@ -62,22 +48,6 @@ public class SocketHandler implements Runnable {
       PrintWriter printWriter = response.getWriter();
       servlet.service(request, response);
       printWriter.flush();
-
-      // Testing
-      System.out.println("Method -> " + request.getMethod());
-      System.out.println("Path -> " + request.getPathInfo());
-      System.out.println("Accept -> " + request.getHeader("Accept"));
-      System.out.println("Name -> " + request.getParameter("name"));
-
-//      PrintWriter output = new PrintWriter(socket.getOutputStream());
-//      output.println("HTTP/1.1 200 OK");
-//      output.println("Content-Type: text/html");
-//      output.println();
-//
-//      output.println("<html><body>Current time: ");
-//      output.println(LocalDateTime.now());
-//      output.println("</body></html>");
-//      output.flush();
 
     } catch (IOException | ServletException e) {
       e.printStackTrace();
@@ -88,6 +58,14 @@ public class SocketHandler implements Runnable {
         e.printStackTrace();
       }
     }
+  }
 
+  private void sendError(PrintWriter output, int sc, String msg) throws IOException {
+    output.println(String.format("HTTP/1.1 %d", sc));
+    output.println("Content-Type: text/html");
+    output.println();
+    output.println(String.format("<html><body>%s</body></html>", msg));
+    output.println();
+    output.flush();
   }
 }

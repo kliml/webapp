@@ -1,6 +1,7 @@
 package servlet;
 
 import util.Settings;
+import util.StringUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -12,7 +13,7 @@ import java.net.URL;
 
 public class GeoLocationServlet extends HttpServlet {
 
-  private static final String geoLocationApiUrl = "https://www.zipcodeapi.com/rest/%s/info.json/%s/degrees";
+  private static final String geoLocationApiUrl = "https://www.zipcodeapi.com/rest/%s/info.json/%d/degrees";
   private static String geoLocationApiKey;
 
   @Override
@@ -30,14 +31,12 @@ public class GeoLocationServlet extends HttpServlet {
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    String zipCode = req.getParameter("zip");
 
     BufferedReader zipReader = req.getReader();
-    String zipCodee = zipReader.readLine();
-    System.err.println("zip code from post body = " + zipCodee);
+    Integer zipCode = tryParseZipCode(zipReader.readLine());
 
     if (zipCode == null) {
-      //TODO convert to body parsing
+      resp.sendError(400, "Please post valid ZIP code in the POST body i.e. 99501");
       return;
     }
 
@@ -48,38 +47,34 @@ public class GeoLocationServlet extends HttpServlet {
     apiConnection.connect();
 
     int responseCode = apiConnection.getResponseCode();
-    System.err.println(responseCode);
-
     if (responseCode == 200) {
       InputStream inputStream = apiConnection.getInputStream();
-      BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-      StringBuilder sb = new StringBuilder();
-      String line;
-      while ((line = reader.readLine()) != null) {
-        sb.append(line);
-      }
-      reader.close();
-      String body = sb.toString();
-      System.err.println(body);
-      //System.err.println(apiConnection.getResponseCode());
-
-      System.err.println("servlet.GeoLocationServlet post");
+      String body = StringUtils.readResponseBody(inputStream);
       PrintWriter printWriter = resp.getWriter();
-      printWriter.println("HTTP/1.1 200 OK");
-      printWriter.println("Content-Type: text/html");
-      printWriter.println();
-      printWriter.println(body);
-      printWriter.println();
+      sendResponse(printWriter, 200, body);
+    } else if (responseCode == 400) {
+      resp.sendError(400, "Invalid request, check ZIP code");
     } else {
-      PrintWriter printWriter = resp.getWriter();
-      printWriter.println("HTTP/1.1 500 Internal Server Error");
-      printWriter.println("Content-Type: text/html");
-      printWriter.println();
-      printWriter.println("<html><body>Can not process this request</body></html>");
-      printWriter.println();
+      resp.sendError(500, "Can not process this request");
     }
 
     apiConnection.disconnect();
+  }
+
+  private void sendResponse(PrintWriter output, int sc, String msg) {
+    output.println(String.format("HTTP/1.1 %d", sc));
+    output.println("Content-Type: application/json");
+    output.println();
+    output.println(msg);
+    output.println();
+  }
+
+  private Integer tryParseZipCode(String zip) {
+    try {
+      return Integer.parseInt(zip);
+    } catch (NumberFormatException e) {
+      return null;
+    }
   }
 
   @Override

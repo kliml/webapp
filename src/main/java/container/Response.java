@@ -27,6 +27,24 @@ public class Response implements HttpServletResponse {
     this.printWriter = new PrintWriter(output);
   }
 
+  @Override
+  public void sendError(int sc, String msg) throws IOException {
+    printWriter.println(String.format("HTTP/1.1 %d", sc));
+    printWriter.println("Content-Type: text/html");
+    printWriter.println();
+    printWriter.println(String.format("<html><body>%s</body></html>", msg));
+    printWriter.println();
+  }
+
+  @Override
+  public ServletOutputStream getOutputStream() throws IOException {
+    return (ServletOutputStream) output;
+  }
+
+  @Override
+  public void sendError(int sc) throws IOException {
+    sendError(sc, null);
+  }
 
   @Override
   public void addCookie(Cookie cookie) {
@@ -58,21 +76,6 @@ public class Response implements HttpServletResponse {
     return null;
   }
 
-  @Override
-  public void sendError(int sc, String msg) throws IOException {
-    //printWriter.println("HTTP/1.1 " + sc + " Not Found");
-    printWriter.println(String.format("HTTP/1.1 %d", sc));
-    printWriter.println("Content-Type: text/html");
-    printWriter.println();
-    printWriter.println(String.format("<html><body>%s</body></html>", msg));
-    printWriter.println();
-    //output.flush();
-  }
-
-  @Override
-  public void sendError(int sc) throws IOException {
-    sendError(sc, null);
-  }
 
   @Override
   public void sendRedirect(String location) throws IOException {
@@ -149,26 +152,6 @@ public class Response implements HttpServletResponse {
     return null;
   }
 
-  @Override
-  public ServletOutputStream getOutputStream() throws IOException {
-    return (ServletOutputStream) output;
-//    return new ServletOutputStream() {
-////      @Override
-////      public boolean isReady() {
-////        return false;
-////      }
-////
-////      @Override
-////      public void setWriteListener(WriteListener writeListener) {
-////
-////      }
-//
-//      @Override
-//      public void write(int i) throws IOException {
-//        output.write(i);
-//      }
-//    };
-  }
 
   @Override
   public PrintWriter getWriter() throws IOException {

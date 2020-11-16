@@ -75,25 +75,17 @@ public class WebContainer {
   private HttpServlet getServletInstance(String className) {
     try {
       return (HttpServlet) Class.forName(className).getDeclaredConstructor().newInstance();
-//    } catch (InstantiationException e) {
-//      e.printStackTrace();
-//    } catch (IllegalAccessException e) {
-//      e.printStackTrace();
-//    } catch (InvocationTargetException e) {
-//      e.printStackTrace();
-//    } catch (NoSuchMethodException e) {
-//      e.printStackTrace();
-//    } catch (ClassNotFoundException e) {
-//      e.printStackTrace();
     } catch (Exception e) {
-      e.printStackTrace();
+      throw new RuntimeException("Unable to load servlet instance for " + className, e);
     }
-    return null;
   }
 
+  /**
+   * Main method launching container and adding shutdown hook
+   * for terminating servlets and ExecutorService.
+   */
   public static void main(String[] args) {
     try {
-      //WebContainer webContainer = new WebContainer(8080, "servlet.properties");
       WebContainer webContainer = new WebContainer();
       webContainer.loadServletPropertiesFile();
 

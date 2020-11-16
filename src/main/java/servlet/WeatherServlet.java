@@ -1,6 +1,7 @@
 package servlet;
 
 import util.Settings;
+import util.StringUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -33,7 +34,8 @@ public class WeatherServlet extends HttpServlet {
     String cityCode = req.getParameter("city");
 
     if (cityCode == null) {
-      //TODO
+      resp.sendError(400, "Please specify city code in as parameter in query i.e. city=2172797");
+      return;
     }
 
     URL apiUrl = new URL(String.format(weatherApiUrl, cityCode, apiKey));
@@ -43,38 +45,26 @@ public class WeatherServlet extends HttpServlet {
     apiConnection.connect();
 
     int responseCode = apiConnection.getResponseCode();
-    System.err.println(responseCode);
-
     if (responseCode == 200) {
       InputStream inputStream = apiConnection.getInputStream();
-      BufferedReader reader =  new BufferedReader(new InputStreamReader(inputStream));
-      StringBuilder sb = new StringBuilder();
-      String line;
-      while ((line = reader.readLine()) != null) {
-        sb.append(line);
-      }
-      reader.close();
-      String body = sb.toString();
-      System.err.println(body);
-      //System.err.println(apiConnection.getResponseCode());
-
-      System.out.println("servlet.WeatherServlet get");
+      String body = StringUtils.readResponseBody(inputStream);
       PrintWriter printWriter = resp.getWriter();
-      printWriter.println("HTTP/1.1 200 OK");
-      printWriter.println("Content-Type: text/html");
-      printWriter.println();
-      printWriter.println(body);
-      printWriter.println();
+      sendResponse(printWriter, 200, body);
+    } else if (responseCode == 404) {
+      resp.sendError(404, "City not found, check ZIP code");
     } else {
-      PrintWriter printWriter = resp.getWriter();
-      printWriter.println("HTTP/1.1 500 Internal Server Error");
-      printWriter.println("Content-Type: text/html");
-      printWriter.println();
-      printWriter.println("<html><body>Can not process this request</body></html>");
-      printWriter.println();
+      resp.sendError(500, "Can not process this request");
     }
 
     apiConnection.disconnect();
+  }
+
+  private void sendResponse(PrintWriter output, int sc, String msg) {
+    output.println(String.format("HTTP/1.1 %d", sc));
+    output.println("Content-Type: application/json");
+    output.println();
+    output.println(msg);
+    output.println();
   }
 
   @Override

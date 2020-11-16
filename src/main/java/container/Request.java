@@ -26,7 +26,9 @@ public class Request implements HttpServletRequest {
   }
 
   /**
-   * Parsing HTTP request.
+   * Parsing HTTP request and storing its parts:
+   * method, protocol, headers and body.
+   *
    * @return true if parsing was successful, otherwise false/
    * @throws IOException if unable to read from socket input channel.
    */
@@ -37,7 +39,7 @@ public class Request implements HttpServletRequest {
     }
     String[] lines = headerSplitterPattern.split(line);
 
-    if (lines.length != 3) {
+    if (lines.length != 3) { // HTTP protocol check
       return false;
     }
 
@@ -53,33 +55,22 @@ public class Request implements HttpServletRequest {
       path = url;
     }
 
+    // Consume empty line after headers
     line = input.readLine();
 
-    // Better headers
+    // Parse headers
     while (!(line = input.readLine()).isEmpty()) {
       String[] headerPair = headerPairSplitterPattern.split(line);
       headers.put(headerPair[0], headerPair[1]);
     }
 
-    // Headers
-//    while (!line.isEmpty()) {
-//      String[] headerPair = headerPairSplitterPattern.split(line);
-//      headers.put(headerPair[0], headerPair[1]);
-//      line = input.readLine();
-//    }
-
-    //TODO Post body
+    // Parse body
     if (method.equals("POST")) {
       StringBuilder bodyBuilder = new StringBuilder();
       while (input.ready()) {
         bodyBuilder.append((char) input.read());
       }
       this.body = bodyBuilder.toString();
-      //TODO
-//      System.out.println(bodyBuilder.toString());
-//      if (!headers.get("Content-Type").contains("text")) {
-//        System.err.println("Unsupported body format");
-//      }
     }
 
     return true;
@@ -87,6 +78,7 @@ public class Request implements HttpServletRequest {
 
   /**
    * Parsing key value pairs from query parameters.
+   *
    * @param queryString
    */
   private void parseRequestParameters(String queryString) {
@@ -96,6 +88,36 @@ public class Request implements HttpServletRequest {
     }
   }
 
+  @Override
+  public String getHeader(String name) {
+    return headers.get(name);
+  }
+
+  @Override
+  public String getMethod() {
+    return method;
+  }
+
+  @Override
+  public String getPathInfo() {
+    return path;
+  }
+
+  @Override
+  public String getParameter(String name) {
+    return requestParameters.get(name);
+  }
+
+  @Override
+  public String getProtocol() {
+    return protocol;
+  }
+
+  @Override
+  public BufferedReader getReader() throws IOException {
+    Reader inputString = new StringReader(body);
+    return new BufferedReader(inputString);
+  }
 
   @Override
   public String getAuthType() {
@@ -113,11 +135,6 @@ public class Request implements HttpServletRequest {
   }
 
   @Override
-  public String getHeader(String name) {
-    return headers.get(name);
-  }
-
-  @Override
   public Enumeration<String> getHeaders(String name) {
     return null;
   }
@@ -130,16 +147,6 @@ public class Request implements HttpServletRequest {
   @Override
   public int getIntHeader(String name) {
     return 0;
-  }
-
-  @Override
-  public String getMethod() {
-    return method;
-  }
-
-  @Override
-  public String getPathInfo() {
-    return path;
   }
 
   @Override
@@ -298,11 +305,6 @@ public class Request implements HttpServletRequest {
   }
 
   @Override
-  public String getParameter(String name) {
-    return requestParameters.get(name);
-  }
-
-  @Override
   public Enumeration<String> getParameterNames() {
     return null;
   }
@@ -318,11 +320,6 @@ public class Request implements HttpServletRequest {
   }
 
   @Override
-  public String getProtocol() {
-    return protocol;
-  }
-
-  @Override
   public String getScheme() {
     return null;
   }
@@ -335,12 +332,6 @@ public class Request implements HttpServletRequest {
   @Override
   public int getServerPort() {
     return 0;
-  }
-
-  @Override
-  public BufferedReader getReader() throws IOException {
-    Reader inputString = new StringReader(body);
-    return new BufferedReader(inputString);
   }
 
   @Override
